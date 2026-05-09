@@ -624,8 +624,13 @@ def export(
         coefs = coefs[0]
     np.savez_compressed(os.path.join(export_dir, "df_dec_output.npz"), coefs=coefs.numpy())
 
-    # Export STM32-compatible one-frame df decoder
-    stm32_gru_layers = 1
+    # Export STM32-compatible one-frame df decoder.
+    #
+    # Keep the full trained GRU depth. Reducing this to fit internal flash is
+    # destructive: the exported graph still validates, but audio quality drops
+    # sharply. Flash placement/compression should be handled by ST Edge AI
+    # generation options instead of changing the network topology.
+    stm32_gru_layers = model.df_dec.df_gru.gru.num_layers
     emb_tbh = emb[:, :1, :].clone().transpose(0, 1).contiguous()
     emb_stm32 = emb_tbh.reshape(1, 1, 1, model.df_dec.emb_dim).contiguous()
     c0_step = c0[:, :, :1, :].contiguous()
