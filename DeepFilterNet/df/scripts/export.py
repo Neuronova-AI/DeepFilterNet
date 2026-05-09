@@ -625,19 +625,20 @@ def export(
     np.savez_compressed(os.path.join(export_dir, "df_dec_output.npz"), coefs=coefs.numpy())
 
     # Export STM32-compatible one-frame df decoder
+    stm32_gru_layers = 1
     emb_tbh = emb[:, :1, :].clone().transpose(0, 1).contiguous()
     emb_stm32 = emb_tbh.reshape(1, 1, 1, model.df_dec.emb_dim).contiguous()
     c0_step = c0[:, :, :1, :].contiguous()
     h0 = torch.zeros(
         (
-            model.df_dec.df_gru.gru.num_layers,
+            stm32_gru_layers,
             emb_tbh.shape[1],
             model.df_dec.df_gru.gru.hidden_size,
         ),
         dtype=emb_tbh.dtype,
         device=emb_tbh.device,
     )
-    h0_stm32 = h0.reshape(1, model.df_dec.df_gru.gru.num_layers, 1, -1).contiguous()
+    h0_stm32 = h0.reshape(1, stm32_gru_layers, 1, -1).contiguous()
 
     np.savez_compressed(
         os.path.join(export_dir, "df_dec_stm32_input.npz"),
@@ -652,7 +653,7 @@ def export(
     dynamic_axes = {}
 
     path = os.path.join(export_dir, "df_dec_stm32.onnx")
-    stm32_df_dec = STM32DfDecoderStep4D(model.df_dec)
+    stm32_df_dec = STM32DfDecoderStep4D(model.df_dec, gru_layers=stm32_gru_layers)
 
     coefs, alpha, h1 = export_impl(
         path,
