@@ -233,6 +233,24 @@ tmp/export/df_dec_stm32_lowrank_r72.onnx
 tmp/export/df_dec_stm32_lowrank_r64.onnx
 ```
 
+The export helper is now saved in the repo:
+
+```text
+DeepFilterNet/df/scripts/export_lowrank_stm32.py
+```
+
+Example usage:
+
+```powershell
+$env:PYTHONPATH='C:\Users\miche\Documents\GitHub\DeepFilterNet\DeepFilterNet'
+C:\Users\miche\Documents\GitHub\.venv\Scripts\python.exe `
+  DeepFilterNet\df\scripts\export_lowrank_stm32.py `
+  tmp\export `
+  --model-base-dir DeepFilterNet2 `
+  --rank 72 `
+  --rank 64
+```
+
 The rank-72 model is the best candidate found so far. It fits inside the 2 MiB weight
 budget, but with little margin:
 
